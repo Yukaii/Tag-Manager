@@ -22,6 +22,9 @@ Use Bundler.
 
 ##Usage
 
+![demo](1.png)
+
+
 You can type `./tagmgr.rb --help` to see how to use.
 
 Here are some examples:
