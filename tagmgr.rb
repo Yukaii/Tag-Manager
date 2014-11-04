@@ -2,10 +2,10 @@
 require 'json'
 require 'clamp'
 
-
-module DbFunction
-  DB_NAME = "_db.json"
+module TagHelper
   extend self
+  DB_NAME = "_db.json"
+  DEFAULT_IGNORE_LIST = ["..", ".", DB_NAME, ".DS_Store"]
 
   def db_save(data)
     File.open(DB_NAME, "w") { |file| file.write(data.to_json)}
@@ -33,8 +33,7 @@ module DbFunction
       f = {:name => "", :tags => []}
       f[:name] = filenames[i]
 
-      # TODO: default ignore list
-      if f[:name] != DB_NAME
+      if !DEFAULT_IGNORE_LIST.include?(f[:name])
         file_array.push(f)
       end
 
@@ -51,22 +50,28 @@ module DbFunction
       db_load
     end
   end  
+
+  def parse_tag(tags)
+    tags.split(".")
+  end
+
+
 end
 
 
 module SimpleFm
 
   class AbstractCommand < Clamp::Command
-    
+    include TagHelper
   end
 
   class AddCommand < AbstractCommand
 
-    option ["-t", "--tag"], "TAG", "-t yourtags, -t thistag&&thattag"
+    option ["-t", "--tag"], "TAG", "-t yourtags, -t thistag.thattag"
     parameter "FILES ...", "the files to deal", :attribute_name => :files    
     
     def execute
-      db = DbFunction.db_create
+      db = db_create
 
       (0..files.length-1).each do |i| 
         index = db.find_index {|obj| obj["name"] == files[i]}
@@ -74,13 +79,16 @@ module SimpleFm
         if index
           tags = db[index]["tags"]
 
-          if !tags.include?(tag) && tag
-            db[index]["tags"].push(tag)
+          parse_tag(tag).each do |tag|
+            if !tags.include?(tag) && tag
+              db[index]["tags"].push(tag)
+            end
           end
+
         end     
       end
       
-      DbFunction.db_save(db)
+      db_save(db)
     end
 
   end
@@ -88,10 +96,10 @@ module SimpleFm
   class InitCommand < AbstractCommand
     
     def execute
-      if DbFunction.db_exist?
+      if db_exist?
         puts "Database has already created..."
       end
-      DbFunction.db_create
+      db_create
 
     end
   end
@@ -104,7 +112,7 @@ module SimpleFm
 
     def execute
 
-      db = DbFunction.db_create
+      db = db_create
 
       if !tag?
 
@@ -140,11 +148,11 @@ module SimpleFm
   end
 
   class RemoveCommand < AbstractCommand
-    option ["-t", "--tag"], "TAG", "remove specific tag"
+    option ["-t", "--tag"], "TAG", "remove specific tag, multiple tags like \"tag1.tag2\""
     parameter "FILES ...", "the files to deal", :attribute_name => :files  
 
     def execute
-      db = DbFunction.db_create
+      db = db_create
 
       if !tag 
         return
@@ -153,12 +161,14 @@ module SimpleFm
       (0..files.length-1).each do |i|   
         if index = db.find_index {|obj| obj["name"] == files[i]}
           
-          if !db[index]["tags"].delete(tag)
-            puts "file #{db[index]["name"]} doesn't have #{tag} tag"
-          else
+          parse_tag(tag).each do |tag|
+            if !db[index]["tags"].delete(tag)
+              puts "file #{db[index]["name"]} doesn't have #{tag} tag"
+            else
 
-            puts "successfully deleted #{tag} from #{db[index]["name"]}"
-            DbFunction.db_save(db)
+              puts "successfully deleted #{tag} from #{db[index]["name"]}"
+              db_save(db)
+            end
           end
 
         end
@@ -173,7 +183,7 @@ module SimpleFm
     option ["-t", "--tag"], "TAG", "\"-t tag\", or \"-t tag1&&tag2&&tag3\""
 
     def execute
-      db = DbFunction.db_create
+      db = db_create
       files = []
 
       db.each do |f|
