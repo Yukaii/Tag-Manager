@@ -33,7 +33,7 @@ module TagManager
       end     
     end
 
-    subcommand ["tags", "t"], "list current tags" do
+    subcommand ["tags", "tag", "t"], "list current tags" do
       def execute
         Tagger.print_tags
       end
