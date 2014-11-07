@@ -29,21 +29,23 @@ You can type `./tagmgr.rb --help` to see how to use.
 
 Here are some examples:
 
-	# initialize our database
-	./tagmgr.rb init
+```bash
+# initialize our database
+./tagmgr.rb init
 
-	# add 'japanese' tag to files
-	./tagmgr.rb add --tag japanese Chinatsu_Izawa_01.png Kaera_Uehara_01.png
+# add 'japanese' tag to files
+./tagmgr.rb add --tag japanese Chinatsu_Izawa_01.png Kaera_Uehara_01.png
 
-	# list files with tag names
-	./tagmgr.rb list --all
+# list files with tag names
+./tagmgr.rb list
 
-	# search by tag name
-	./tagmgr.rb search --tag japanese
+# search by tag name
+./tagmgr.rb search --tag japanese
 
-	# remove specific tag from files
-	./tagmgr.rb remove --tag japanese Chinatsu_Izawa_01.png Kaera_Uehara_01.png
+# remove specific tag from files
+./tagmgr.rb remove --tag japanese Chinatsu_Izawa_01.png Kaera_Uehara_01.png
 
-	# list used tags
-	./tagmgr.rb list --tag
+# list used tags
+./tagmgr.rb list tags
+```
 
