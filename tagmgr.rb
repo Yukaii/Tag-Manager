@@ -2,19 +2,48 @@
 require 'json'
 require 'clamp'
 
+# class FileFormat
+#   attr_accessor :name, :tags
+  
+#   def initialize
+#     @name = ""
+#     @tags = []
+#   end
+
+#   def to_json
+#     {'name' => name, 'tags' => tags}.to_json
+#   end
+# end
+
 module TagHelper
   extend self
   DB_NAME = "_db.json"
   DEFAULT_IGNORE_LIST = ["..", ".", DB_NAME, ".DS_Store"]
+  STATE = ["new", "modified", "deleted"]
 
   def db_save(data)
     File.open(DB_NAME, "w") { |file| file.write(data.to_json)}
     return data
   end
 
+  def db_check(db)
+    filenames = Dir.entries(".")
+    current_names = db.map {|f| f["name"]}
+
+    current_names.each do |name|
+      if !filenames.include?(name)
+        _i = db.find_index {|d| d["name"] == name}
+        db[_i]["state"] = STATE[2]
+      end
+    end
+
+    return db
+  end
+
   def db_load
     file = File.read(DB_NAME)
     db = JSON.parse(file)
+    db_check(db)
   end
 
   def db_exist?
@@ -30,7 +59,7 @@ module TagHelper
 
     file_array = []
     (0..filenames.length-1).each do |i|
-      f = {:name => "", :tags => []}
+      f = {:name => "", :tags => [], :state => STATE[0]}
       f[:name] = filenames[i]
 
       if !DEFAULT_IGNORE_LIST.include?(f[:name])
@@ -113,6 +142,7 @@ module SimpleFm
     def execute
 
       db = db_create
+      db = db.select {|d| d["state"] != STATE[2]}
 
       if !tag?
 
