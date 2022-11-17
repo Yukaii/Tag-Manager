@@ -1,6 +1,6 @@
-#Simple File Tag Manager using Ruby and Clamp
+# Simple File Tag Manager using Ruby and Clamp
 
-##Overview
+## Overview
 Inspire by my future Software Engineering Course Final Project(read the **Use Requirement** [here](https://hackpad.com/-Use-Requirement-RzuVlOBv6S9))
 
 The Project should be written in JAVA (WTF). However, I made a CLI version, implementing basic operations, including:
@@ -14,13 +14,13 @@ The Project should be written in JAVA (WTF). However, I made a CLI version, impl
 
 Powered by a smart CLI program framework, [clamp by mdub](https://github.com/mdub/clamp)
 
-##Dependency
+## Dependency
 
 Use Bundler.
 
 	bundle intall
 
-##Usage
+## Usage
 
 ![demo](1.png)
 
